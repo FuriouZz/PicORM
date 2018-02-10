@@ -220,6 +220,14 @@ abstract class Model
         return static::$_primaryKey;
     }
 
+    /**
+     * Hooks
+     */
+    public function hook( $method ) {
+        if (method_exists($this, $method)) {
+            call_user_func(array($this, $method));
+        }
+    }
 
     /**
      * Save model in database
@@ -1066,6 +1074,8 @@ abstract class Model
      */
     public function delete()
     {
+        $this->hook( 'beforeDelete' );
+
         // validate model PHP structure if necessary
         static::_validateModel();
 
@@ -1087,6 +1097,8 @@ abstract class Model
         // model is not stored anymore in database
         $this->_isNew = true;
 
+        $this->hook( 'afterDelete' );
+
         return true;
     }
 
@@ -1099,6 +1111,8 @@ abstract class Model
      */
     private function update()
     {
+        $this->beforeUpdate();
+
         // validate model PHP structure if necessary
         static::_validateModel();
 
@@ -1133,6 +1147,9 @@ abstract class Model
             throw new Exception($errorcode[2]);
         }
 
+        $this->hook( 'afterUpdate' );
+        $this->hook( 'afterSave' );
+
         return true;
     }
 
@@ -1142,6 +1159,9 @@ abstract class Model
      */
     private function insert()
     {
+        $this->hook( 'beforeSave' );
+        $this->hook( 'beforeInsert' );
+
         // validate model PHP structure if necessary
         static::_validateModel();
 
@@ -1189,6 +1209,9 @@ abstract class Model
         if (empty($this->{static::$_primaryKey})) {
             $this->{static::$_primaryKey} = static::$_dataSource->lastInsertId();
         }
+
+        $this->hook( 'afterInsert' );
+        $this->hook( 'afterSave' );
 
         return true;
     }
