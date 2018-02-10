@@ -192,6 +192,16 @@ abstract class Model
     }
 
     /**
+     * Format table field name to using it in SQL query
+     *
+     * @return string
+     */
+    public static function formatTableFieldNameMySQL( $field )
+    {
+        return "`" . $field . "`";
+    }
+
+    /**
      * Modify the table name on the fly
      * @param $tableName
      */
@@ -1101,10 +1111,10 @@ abstract class Model
         foreach (static::$_tableFields as $unChamp) {
             // array is for raw SQL value
             if (is_array($this->$unChamp) && isset($this->{$unChamp}[0])) {
-                $helper->set($unChamp, $this->{$unChamp}[0]);
+                $helper->set(static::formatTableFieldNameMySQL($unChamp), $this->{$unChamp}[0]);
             } else {
                 // Mysql prepared value
-                $helper->set($unChamp, '?');
+                $helper->set(static::formatTableFieldNameMySQL($unChamp), '?');
                 $params[] = $this->{$unChamp};
             }
         }
@@ -1159,7 +1169,7 @@ abstract class Model
                 $params[] = $this->$unChamp;
             }
 
-            $queryHelp->values($unChamp, $val);
+            $queryHelp->values(static::formatTableFieldNameMySQL($unChamp), $val);
         }
 
         // execute insert query
