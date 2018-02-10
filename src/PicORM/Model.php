@@ -73,6 +73,13 @@ abstract class Model
     protected static $_tableFields = null;
 
     /**
+     * SQL fields from table without primary key
+     *
+     * @var array
+     */
+    protected static $_tableFieldsDefaults = null;
+
+    /**
      * Array to store OOP declaration status of each Model subclass
      *
      * @var array
@@ -218,6 +225,19 @@ abstract class Model
     public static function getPrimaryKeyFieldName()
     {
         return static::$_primaryKey;
+    }
+
+    public static function create() {
+        $class  = get_called_class();
+        $entity = new $class();
+
+        if (static::$_tableFieldsDefaults != null) {
+            foreach( static::$_tableFieldsDefaults as $key => $value ) {
+                $entity->$key = $value;
+            }
+        }
+
+        return $entity;
     }
 
     /**
